@@ -1,0 +1,98 @@
+service: batida-ponto-serverless
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: us-east-1
+  stage: dev
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "sqs:SendMessage"
+      Resource: !GetAtt DLQ.Arn
+
+functions:
+  schema:
+    handler: schema.main
+    vpc:
+      securityGroupIds:
+        - sg-54c9ed1c
+      subnetIds:
+        - subnet-62f33a4c
+        - subnet-f1ca1f96
+        - subnet-f9a768a5
+        - subnet-fa5acaf5
+        - subnet-05d2c83a
+        - subnet-2c75e666
+    events:
+      - http:
+          path: schema
+          method: post
+  batidaPonto:
+    handler: handler.main
+    memorySize: 128
+    vpc:
+      securityGroupIds:
+        - sg-54c9ed1c
+      subnetIds:
+        - subnet-62f33a4c
+        - subnet-f1ca1f96
+        - subnet-f9a768a5
+        - subnet-fa5acaf5
+        - subnet-05d2c83a
+        - subnet-2c75e666
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - BatidaPontoQueue
+              - Arn
+    reservedConcurrency: 5
+    deadLetter:
+      targetArn:
+        GetResourceArn: DLQ
+
+custom:
+  apiGatewayServiceProxies:
+    - sqs:
+        path: /ponto
+        method: post
+        queueName: { 'Fn::GetAtt': ['BatidaPontoQueue', 'QueueName'] }
+        cors: true
+        response:
+          template:
+            success: |-
+              { "message": "accepted" }
+            clientError: |-
+              { "message": "there is an error in your request" }
+            serverError: |-
+              { "message": "there was an error handling your request" }
+
+resources:
+  Resources:
+    BatidaPontoQueue:
+      Type: 'AWS::SQS::Queue'
+    DLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: batidaPonto-dl-queue
+    RDSCluster:
+      Type: AWS::RDS::DBCluster
+      Properties:
+        MasterUsername: ponto
+        MasterUserPassword: p0nt0#2020
+        DBClusterIdentifier: ponto-cluster
+        DatabaseName: pontodb
+        Engine: aurora-postgresql
+        EngineMode: serverless
+        ScalingConfiguration:
+          AutoPause: true
+          MaxCapacity: 2
+          MinCapacity: 2
+          SecondsUntilAutoPause: 300
+        EnableHttpEndpoint: true
+#        StorageEncrypted: true
+
+plugins:
+  - serverless-apigateway-service-proxy
+  - serverless-plugin-lambda-dead-letter
