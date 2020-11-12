@@ -1,6 +1,7 @@
 import json
 import logging
 import psycopg2
+import rds_config
 
 
 def main(event, context):
@@ -8,16 +9,16 @@ def main(event, context):
     logger.setLevel(logging.INFO)
 
     # rds settings
-    # rds_host = "rds-instance-endpoint"
-    # name = rds_config.db_username
-    # password = rds_config.db_password
-    # db_name = rds_config.db_name
+    rds_host = rds_config.db_host
+    name = rds_config.db_username
+    password = rds_config.db_password
+    db_name = rds_config.db_name
 
     connection = psycopg2.connect(
-        database="pontodb",
-        user="ponto",
-        password="p0nt0#2020",
-        host="ponto-cluster.cluster-cgawhvnggplu.us-east-1.rds.amazonaws.com",
+        database=db_name,
+        user=name,
+        password=password,
+        host=rds_host,
         port='5432'
     )
     cursor = connection.cursor()
