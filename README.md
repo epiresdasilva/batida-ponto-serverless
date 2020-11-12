@@ -28,6 +28,8 @@ Podemos descrever as etapas como:
     * A função Lambda possui um throttle para não estourar o limite de conexões do banco de dados relacional
     * Nesse caso, estamos ainda utilizando um RDS Aurora Serverless
 
+Também vemos a utilização de uma DLQ (dead queue letter) para armanezar as mensagens que deram erro no processamento assíncrono.
+    
 ## Configuração
 
 Você vai precisar fazer os seguintes ajustes para rodar isso no seu ambiente AWS:
@@ -57,3 +59,13 @@ Feitos os ajustes basta executar o comando de deployment do Serverless Framework
 ```bash
 sls deploy
 ```
+
+## Teste de carga
+
+Para provar que essa arquitetura suporta o pico de batidas de ponto, fiz um teste de carga simples utilizando JMeter.
+Além disso, não fiz nenhum ajuste de limites na AWS, está como uma conta default.
+
+![](images/jmeter-batida-ponto-serverless.jpg)
+
+Na imagem podemos ver que em 22 segundos foram executadas 20.000 batidas de ponto, atingindo um througput de mais de 900 requisições por segundo.
+Isso seria suficiente para suportar as batidas de ponto de uma empresa bastante grande :)
