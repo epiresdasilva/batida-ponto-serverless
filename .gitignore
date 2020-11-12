@@ -21,3 +21,4 @@ var/
 node_modules
 .idea
 venv
+rds_config.py
