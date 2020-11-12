@@ -14,16 +14,6 @@ provider:
 functions:
   schema:
     handler: schema.main
-    vpc:
-      securityGroupIds:
-        - sg-54c9ed1c
-      subnetIds:
-        - subnet-62f33a4c
-        - subnet-f1ca1f96
-        - subnet-f9a768a5
-        - subnet-fa5acaf5
-        - subnet-05d2c83a
-        - subnet-2c75e666
     events:
       - http:
           path: schema
@@ -31,16 +21,6 @@ functions:
   batidaPonto:
     handler: handler.main
     memorySize: 128
-    vpc:
-      securityGroupIds:
-        - sg-54c9ed1c
-      subnetIds:
-        - subnet-62f33a4c
-        - subnet-f1ca1f96
-        - subnet-f9a768a5
-        - subnet-fa5acaf5
-        - subnet-05d2c83a
-        - subnet-2c75e666
     events:
       - sqs:
           arn:
@@ -67,6 +47,12 @@ custom:
               { "message": "there is an error in your request" }
             serverError: |-
               { "message": "there was an error handling your request" }
+  vpc:
+    vpcName: 'vpc-default'
+    subnetNames:
+      - 'vpc-default_subnet-1'
+    securityGroupNames:
+      - 'default'
 
 resources:
   Resources:
@@ -91,8 +77,8 @@ resources:
           MinCapacity: 2
           SecondsUntilAutoPause: 300
         EnableHttpEndpoint: true
-#        StorageEncrypted: true
 
 plugins:
   - serverless-apigateway-service-proxy
   - serverless-plugin-lambda-dead-letter
+  - serverless-vpc-discovery
