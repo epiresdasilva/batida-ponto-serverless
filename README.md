@@ -34,10 +34,10 @@ Você vai precisar fazer os seguintes ajustes para rodar isso no seu ambiente AW
 
 1. Criar um arquivo chamado `rds_config.py` na raiz do projeto com o seguinte conteúdo:
 ```python
-db_host = 'ponto-cluster.cluster-cgawhvnggplu.us-east-1.rds.amazonaws.com'
-db_username = 'ponto'
-db_password = 'p0nt0#2020'
-db_name = 'pontodb'
+db_host = 'rds endpoint'
+db_username = 'username'
+db_password = 'password'
+db_name = 'database name'
 ```
 2. Alterar os nomes de VPC, Subnet e Security Group para ficaram iguais aos desse exemplo, OU trocar para os nomes que estão no seu ambiente AWS:
 
